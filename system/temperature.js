@@ -8,7 +8,7 @@ module.exports = TemperatureStream;
 
 function TemperatureStream () {
 
-    Readable.call( this );
+    Readable.call( this, { objectMode: true } );
 
 }
 
@@ -24,7 +24,7 @@ TemperatureStream.prototype._read = function () {
             throw err;
         }
 
-        _this.push( JSON.stringify( data ) );
+        _this.push( data );
 
     }
 
