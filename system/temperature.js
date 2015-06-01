@@ -6,14 +6,13 @@ var Readable = require( "stream" ).Readable;
 module.exports = TemperatureStream;
 
 
-var TemperatureStream = function () {
+function TemperatureStream () {
 
     Readable.call( this, { objectMode: true } );
 
-};
+}
 
 util.inherits( TemperatureStream, Readable );
-
 
 TemperatureStream.prototype._read = function () {
 
