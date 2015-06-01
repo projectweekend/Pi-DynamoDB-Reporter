@@ -1,0 +1,1 @@
+exports.TemperatureStream = require( "./temperature" );
