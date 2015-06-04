@@ -4,25 +4,24 @@ from fabric import api
 from fabric.contrib.files import exists
 
 
-# UPSTART_TEMPLATE = """
-# description "Pi-System-RPC-Service"
-# start on runlevel [2345]
-# stop on runlevel [06]
-# respawn
-# respawn limit 10 5
-# env LOGGLY_TOKEN={loggly_token}
-# env LOGGLY_SUBDOMAIN={loggly_domain}
-# env RABBIT_URL={rabbit_url}
-# script
-#         cd /home/pi/Pi-System-RPC-Service/app && node main.js
-# end script
-# """
+UPSTART_TEMPLATE = """
+description "{project_description}"
+start on runlevel [2345]
+stop on runlevel [06]
+respawn
+respawn limit 10 5
+env AWS_ACCESS_KEY_ID={aws_access_key_id}
+env AWS_SECRET_ACCESS_KEY={aws_secret_access_key}
+script
+        cd /home/pi/{local_repo_name} && sudo python main.py
+end script
+"""
 
 UPSTART_FILE_NAME = 'pi-thpl-reporter.conf'
 UPSTART_FILE_PATH = '/etc/init/{0}'.format(UPSTART_FILE_NAME)
 UPSTART_SERVICE_NAME = UPSTART_FILE_NAME.split('.')[0]
 GITHUB_REPO = 'https://github.com/projectweekend/Pi-DynamoDB-Reporter.git'
-LOCAL_REPO_NAME = UPSTART_FILE_NAME
+LOCAL_REPO_NAME = UPSTART_SERVICE_NAME
 LOCAL_REPO_PATH = '~/{0}'.format(LOCAL_REPO_NAME)
 START_SERVICE = 'service {0} start'.format(UPSTART_SERVICE_NAME)
 STOP_SERVICE = 'service {0} stop'.format(UPSTART_SERVICE_NAME)
@@ -43,9 +42,9 @@ def install():
 
     upstart_values = {}
     upstart_values['project_description'] = api.prompt('Project description:')
-    upstart_values['loggly_token'] = api.prompt('Loggly token:')
-    upstart_values['loggly_domain'] = api.prompt('Loggly domain:')
-    upstart_values['rabbit_url'] = api.prompt('Rabbit URL:')
+    upstart_values['aws_access_key_id'] = api.prompt('AWS_ACCESS_KEY_ID:')
+    upstart_values['aws_secret_access_key'] = api.prompt('AWS_SECRET_ACCESS_KEY:')
+    upstart_values['local_repo_name'] = LOCAL_REPO_NAME
     upstart_file = StringIO(UPSTART_TEMPLATE.format(**upstart_values))
 
     api.sudo('echo Yes, do as I say! | apt-get -y --force-yes install upstart')
