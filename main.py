@@ -6,7 +6,7 @@ from boto.dynamodb2.table import Table
 
 
 def main():
-    # pi_bank = Table('pi_bank')
+    pi_bank = Table('pi_bank')
     ser = Serial(port='/dev/ttyAMA0', baudrate=9600)
     while True:
         data = {
@@ -16,7 +16,7 @@ def main():
             'reading_type': 'thpl_01',
             'reading_data': json.loads(ser.readline())
         }
-        print(data)
+        pi_bank.put_item(data=data)
 
 
 if __name__ == '__main__':
