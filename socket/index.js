@@ -1,1 +1,0 @@
-exports.SocketWriter = require( "./writer" );
