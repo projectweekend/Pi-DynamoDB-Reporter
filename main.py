@@ -10,7 +10,7 @@ def main():
     ser = Serial(port='/dev/ttyAMA0', baudrate=9600)
     while True:
         data = {
-            'id': uuid.uuid4(),
+            'id': str(uuid.uuid4()),
             'device': 'pi_01',
             'timestamp': int(time.time()),
             'reading_type': 'thpl_01',
