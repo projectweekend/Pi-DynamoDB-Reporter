@@ -20,7 +20,7 @@ end script
 UPSTART_FILE_NAME = 'pi-thpl-reporter.conf'
 UPSTART_FILE_PATH = '/etc/init/{0}'.format(UPSTART_FILE_NAME)
 UPSTART_SERVICE_NAME = UPSTART_FILE_NAME.split('.')[0]
-GITHUB_REPO = 'https://github.com/projectweekend/Pi-DynamoDB-Reporter.git'
+REMOTE_REPO = 'https://github.com/projectweekend/Pi-DynamoDB-Reporter.git'
 LOCAL_REPO_NAME = UPSTART_SERVICE_NAME
 LOCAL_REPO_PATH = '~/{0}'.format(LOCAL_REPO_NAME)
 START_SERVICE = 'service {0} start'.format(UPSTART_SERVICE_NAME)
@@ -53,7 +53,7 @@ def install():
         upload = api.put(upstart_file, UPSTART_FILE_NAME, use_sudo=True)
         assert upload.succeeded
 
-    api.run('git clone {0} {1}'.format(GITHUB_REPO, LOCAL_REPO_NAME))
+    api.run('git clone {0} {1}'.format(REMOTE_REPO, LOCAL_REPO_NAME))
 
     with api.cd(LOCAL_REPO_PATH):
         api.sudo(INSTALL_DEPENDENCIES)
