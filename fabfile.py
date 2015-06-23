@@ -13,7 +13,7 @@ respawn limit 10 5
 env AWS_ACCESS_KEY_ID={aws_access_key_id}
 env AWS_SECRET_ACCESS_KEY={aws_secret_access_key}
 script
-        cd /home/pi/{local_repo_name} && sudo python main.py
+        cd /opt/{local_repo_name} && sudo -E python main.py
 end script
 """
 
@@ -22,7 +22,7 @@ UPSTART_FILE_PATH = '/etc/init/{0}'.format(UPSTART_FILE_NAME)
 UPSTART_SERVICE_NAME = UPSTART_FILE_NAME.split('.')[0]
 REMOTE_REPO = 'https://github.com/projectweekend/Pi-DynamoDB-Reporter.git'
 LOCAL_REPO_NAME = UPSTART_SERVICE_NAME
-LOCAL_REPO_PATH = '~/{0}'.format(LOCAL_REPO_NAME)
+LOCAL_REPO_PATH = '/opt/{0}'.format(LOCAL_REPO_NAME)
 START_SERVICE = 'service {0} start'.format(UPSTART_SERVICE_NAME)
 STOP_SERVICE = 'service {0} stop'.format(UPSTART_SERVICE_NAME)
 INSTALL_DEPENDENCIES = 'pip install -r requirements.txt'
@@ -53,7 +53,8 @@ def install():
         upload = api.put(upstart_file, UPSTART_FILE_NAME, use_sudo=True)
         assert upload.succeeded
 
-    api.run('git clone {0} {1}'.format(REMOTE_REPO, LOCAL_REPO_NAME))
+    with api.cd('/opt'):
+        api.sudo('git clone {0} {1}'.format(REMOTE_REPO, LOCAL_REPO_NAME))
 
     with api.cd(LOCAL_REPO_PATH):
         api.sudo(INSTALL_DEPENDENCIES)
@@ -68,7 +69,7 @@ def update():
         api.sudo(STOP_SERVICE)
 
     with api.cd(LOCAL_REPO_PATH):
-        api.run('git pull origin master')
+        api.sudo('git pull origin master')
         api.sudo(INSTALL_DEPENDENCIES)
 
     api.sudo(START_SERVICE)
