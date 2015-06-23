@@ -1,4 +1,3 @@
-import uuid
 import time
 import json
 from serial import Serial
@@ -6,22 +5,18 @@ from boto.dynamodb2.table import Table
 
 
 def main():
-    pi_bank = Table('pi_bank')
+    pi_bank = Table('pi_project_data')
     ser = Serial(port='/dev/ttyAMA0', baudrate=9600)
     while True:
+        data = {
+            'device_name': 'pi001',
+            'timestamp': int(time.time()),
+        }
         reading = json.loads(ser.readline())
 
         # convert floats to strings for DynamoDB
         for k, v in reading.iteritems():
-            reading[k] = str(v)
-
-        data = {
-            'id': str(uuid.uuid4()),
-            'device': 'pi_01',
-            'timestamp': int(time.time()),
-            'reading_type': 'thpl_01',
-            'reading_data': reading
-        }
+            data[k] = str(v)
 
         pi_bank.put_item(data=data)
 
