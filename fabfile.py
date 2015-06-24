@@ -5,7 +5,7 @@ from fabric.contrib.files import exists
 
 
 UPSTART_TEMPLATE = """
-description "{project_description}"
+description "Temperature, Humidity, Pressure, & Luminosity Reporter"
 start on runlevel [2345]
 stop on runlevel [06]
 respawn
@@ -18,11 +18,13 @@ end script
 """
 
 UPSTART_FILE_NAME = 'pi-thpl-reporter.conf'
-UPSTART_FILE_PATH = '/etc/init/{0}'.format(UPSTART_FILE_NAME)
+UPSTART_DIRECTORY = '/etc/init'
+UPSTART_FILE_PATH = '{0}/{1}'.format(UPSTART_DIRECTORY, UPSTART_FILE_NAME)
 UPSTART_SERVICE_NAME = UPSTART_FILE_NAME.split('.')[0]
 REMOTE_REPO = 'https://github.com/projectweekend/Pi-DynamoDB-Reporter.git'
+LOCAL_INSTALL_DIRECTORY = '/opt'
 LOCAL_REPO_NAME = UPSTART_SERVICE_NAME
-LOCAL_REPO_PATH = '/opt/{0}'.format(LOCAL_REPO_NAME)
+LOCAL_REPO_PATH = '{0}/{1}'.format(LOCAL_INSTALL_DIRECTORY, LOCAL_REPO_NAME)
 START_SERVICE = 'service {0} start'.format(UPSTART_SERVICE_NAME)
 STOP_SERVICE = 'service {0} stop'.format(UPSTART_SERVICE_NAME)
 INSTALL_DEPENDENCIES = 'pip install -r requirements.txt'
@@ -41,7 +43,6 @@ def install():
         return
 
     upstart_values = {}
-    upstart_values['project_description'] = api.prompt('Project description:')
     upstart_values['aws_access_key_id'] = api.prompt('AWS_ACCESS_KEY_ID:')
     upstart_values['aws_secret_access_key'] = api.prompt('AWS_SECRET_ACCESS_KEY:')
     upstart_values['local_repo_name'] = LOCAL_REPO_NAME
@@ -49,11 +50,11 @@ def install():
 
     api.sudo('echo Yes, do as I say! | apt-get -y --force-yes install upstart')
 
-    with api.cd('/etc/init'):
+    with api.cd(UPSTART_DIRECTORY):
         upload = api.put(upstart_file, UPSTART_FILE_NAME, use_sudo=True)
         assert upload.succeeded
 
-    with api.cd('/opt'):
+    with api.cd(LOCAL_INSTALL_DIRECTORY):
         api.sudo('git clone {0} {1}'.format(REMOTE_REPO, LOCAL_REPO_NAME))
 
     with api.cd(LOCAL_REPO_PATH):
